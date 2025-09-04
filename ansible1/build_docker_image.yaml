@@ -8,7 +8,7 @@
         name: myapp
         tag: latest
         build:
-          path: /var/lib/jenkins/workspace/test1/Dockerfile  # directory containing Dockerfile
+          path: /var/lib/jenkins/workspace/test1  # directory containing Dockerfile
 
     - name: Run Docker container from built image
       community.docker.docker_container:
