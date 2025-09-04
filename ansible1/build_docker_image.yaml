@@ -1,0 +1,48 @@
+---
+- name: Build and Push Docker Image
+  hosts: all
+  become: yes
+
+  vars:
+    docker_image_name: "gundrasisudheer/test"
+    docker_image_tag: "latest"
+    dockerhub_username: "gundrasisudheer"
+    dockerhub_password: "{{ lookup('env', 'DOCKER_PASS') }}"  # read from env var
+
+  tasks:
+    - name: Ensure Docker is installed
+      apt:
+        name: docker.io
+        state: present
+        update_cache: yes
+
+    - name: Ensure Docker service is running
+      service:
+        name: docker
+        state: started
+        enabled: yes
+
+    - name: Checkout source code
+      git:
+        repo: "https://github.com/sudheergundrasi/secretsanta-generator.git"
+        dest: /opt/secretsanta-generator
+        version: master
+
+    - name: Build Docker image
+      community.docker.docker_image:
+        build:
+          path: /opt/secretsanta-generator
+        name: "{{ docker_image_name }}"
+        tag: "{{ docker_image_tag }}"
+        push: no
+
+    - name: Log in to DockerHub
+      community.docker.docker_login:
+        username: "{{ dockerhub_username }}"
+        password: "{{ dockerhub_password }}"
+
+    - name: Push Docker image to Hub
+      community.docker.docker_image:
+        name: "{{ docker_image_name }}"
+        tag: "{{ docker_image_tag }}"
+        push: yes
