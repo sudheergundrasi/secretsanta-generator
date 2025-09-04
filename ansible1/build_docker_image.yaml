@@ -1,7 +1,7 @@
 ---
 - name: Execute Dockerfile using Ansible
   hosts: localhost
-  #become: yes
+  become: yes
   tasks:
     - name: Build Docker image from Dockerfile
       community.docker.docker_image:
