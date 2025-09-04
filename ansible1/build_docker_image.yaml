@@ -1,6 +1,6 @@
 ---
 - name: Execute Dockerfile using Ansible
-  hosts: all
+  hosts: localhost
   become: yes
   tasks:
     - name: Build Docker image from Dockerfile
