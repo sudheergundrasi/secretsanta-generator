@@ -1,1 +1,34 @@
-Tests
+---
+- name: Deploy Secret Santa App
+  hosts: target
+  become: yes
+  tasks:
+    - name: Ensure Docker is installed
+      apt:
+        name: docker.io
+        state: present
+        update_cache: yes
+
+    - name: Log in to DockerHub
+      community.docker.docker_login:
+        username: "{{ docker_user }}"
+        password: "{{ docker_pass }}"
+
+    - name: Pull latest image from DockerHub
+      community.docker.docker_image:
+        name: gundrasisudheer/santa123:latest
+        source: pull
+
+    - name: Stop old container if running
+      community.docker.docker_container:
+        name: santa-container
+        state: absent
+
+    - name: Run new container
+      community.docker.docker_container:
+        name: santa-container
+        image: gundrasisudheer/santa123:latest
+        state: started
+        restart_policy: always
+        published_ports:
+          - "9091:8080"
