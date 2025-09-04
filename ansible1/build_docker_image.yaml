@@ -21,3 +21,4 @@
         restart_policy: always
         published_ports:
           - "8081:8081"   # change if your app uses another port
+          detach: yes  
