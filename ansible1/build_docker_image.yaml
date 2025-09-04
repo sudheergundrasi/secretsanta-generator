@@ -10,6 +10,8 @@
         build:
           path: /var/lib/jenkins/workspace/test1  # directory containing Dockerfile
           dockerfile: Dockerfile
+        source: build
+        state: present
 
     - name: Run Docker container from built image
       community.docker.docker_container:
