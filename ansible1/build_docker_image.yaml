@@ -8,7 +8,7 @@
         name: myapp
         tag: latest
         build:
-          path: ./Dockerfile   # directory containing Dockerfile
+          path: "{{ ./Dockerfile }}"   # directory containing Dockerfile
 
     - name: Run Docker container from built image
       community.docker.docker_container:
