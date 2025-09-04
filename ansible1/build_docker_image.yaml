@@ -1,25 +1,18 @@
----
 - name: Deploy Secret Santa App
   hosts: localhost
   become: yes
   tasks:
-    - name: Build Docker image from Dockerfile
-      community.docker.docker_image:
-        name: myapp
-        tag: latest
-        build:
-          path: /var/lib/jenkins/workspace/test1
-          dockerfile: Dockerfile
-        source: build
-        state: present
-
-    - name: Run Docker container from built image
+    - name: Stop old container if running
       community.docker.docker_container:
-        name: myapp-container
-        image: myapp:latest
+        name: santa-container
+        state: absent
+
+    - name: Run new container
+      community.docker.docker_container:
+        name: santa-container
+        image: gundrasisudheer/santa123:latest
         state: started
         restart_policy: always
         published_ports:
-          - "8081:8080"
+          - "9091:8080"
         detach: yes
-        tty: yes
