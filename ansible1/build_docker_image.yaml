@@ -1,5 +1,5 @@
 ---
-- name: Execute Dockerfile using Ansible
+- name: Deploy Secret Santa App
   hosts: localhost
   become: yes
   tasks:
@@ -8,7 +8,7 @@
         name: myapp
         tag: latest
         build:
-          path: /var/lib/jenkins/workspace/test1  # directory containing Dockerfile
+          path: /var/lib/jenkins/workspace/test1
           dockerfile: Dockerfile
         source: build
         state: present
@@ -20,6 +20,6 @@
         state: started
         restart_policy: always
         published_ports:
-          - "8081:8080"   # host 8081 -> container 8080
+          - "8081:8080"
         detach: yes
-        tty: yes          # ensures container stays running
+        tty: yes
