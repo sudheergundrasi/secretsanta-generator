@@ -9,6 +9,7 @@
         tag: latest
         build:
           path: /var/lib/jenkins/workspace/test1  # directory containing Dockerfile
+          dockerfile: Dockerfile
 
     - name: Run Docker container from built image
       community.docker.docker_container:
