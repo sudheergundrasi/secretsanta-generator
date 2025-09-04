@@ -69,17 +69,14 @@ pipeline {
             }
         }
 
-        stage('Docker Run') {
-            steps {
-                sh '''
-                    docker rm -f santa-container || true
-
-                    docker run -d --name santa-container --restart always -p 9091:8080 gundrasisudheer/santa123:latest
-                '''
-            }
+        stage('Deploy with Ansible') {
+    steps {
+        withCredentials([usernamePassword(credentialsId: 'docker-cred', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
+            ansiblePlaybook(
+                playbook: 'ansible/deploy.yml',
+                inventory: 'ansible/inventory.ini',
+                extras: "-e docker_user=$DOCKER_USER -e docker_pass=$DOCKER_PASS"
+            )
         }
     }
 }
-
-
-
