@@ -1,6 +1,11 @@
 pipeline {
     agent any
 
+    environment {
+        AWS_REGION = 'us-east-1'                 // Replace with your EKS cluster region
+        EKS_CLUSTER_NAME = 'terraform-eks'     // Replace with your cluster name
+    }
+
     stages {
         stage('Cloning the Code') {
             steps {
@@ -10,13 +15,13 @@ pipeline {
 
         stage('Code Compile') {
             steps {
-                sh "mvn clean compile"
+                sh 'mvn clean compile'
             }
         }
 
         stage('Unit Tests') {
             steps {
-                sh "mvn test"
+                sh 'mvn test'
             }
         }
 
@@ -33,24 +38,24 @@ pipeline {
 
         stage('Build the Code') {
             steps {
-                sh "mvn package"
+                sh 'mvn package'
             }
         }
 
         stage('Build the Docker Image') {
             steps {
-                sh "docker build -t secretsanta123 ."
+                sh 'docker build -t secretsanta123 .'
             }
         }
 
         stage('Trivy Scan Docker Image') {
             steps {
-                sh """
+                sh '''
                     docker run --rm \
                         -v /var/run/docker.sock:/var/run/docker.sock \
                         aquasec/trivy:latest image \
                         --exit-code 0 --severity LOW,MEDIUM,HIGH,CRITICAL secretsanta123
-                """
+                '''
             }
         }
 
@@ -58,12 +63,21 @@ pipeline {
             steps {
                 script {
                     withCredentials([usernamePassword(credentialsId: 'docker-cred', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
-                        sh """
+                        sh '''
                             echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
                             docker tag secretsanta123 gundrasisudheer/secretsanta123:latest
                             docker push gundrasisudheer/secretsanta123:latest
-                        """
+                        '''
                     }
+                }
+            }
+        }
+
+        stage('Configure Kubeconfig for EKS') {
+            steps {
+                withKubeConfig([credentialsId: 'jenkins-kubeconfig']) {
+                    sh 'kubectl get nodes'
+                    sh 'kubectl apply -f deploymentsvc.yaml'
                 }
             }
         }
