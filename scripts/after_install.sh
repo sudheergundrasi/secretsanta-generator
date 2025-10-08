@@ -1,3 +1,3 @@
 #!/bin/bash
-sudo systemctl restart apache2
-
+echo "Copying new files"
+# Already copied by CodeDeploy
