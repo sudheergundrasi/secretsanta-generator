@@ -1,14 +1,29 @@
 version: 0.0
 os: linux
+ 
+# Copy all necessary files from the repo to the EC2 instance
 files:
-  - source: app/
-    destination: /var/www/html
+  - source: /
+    destination: /home/ubuntu/app
+ 
+# Hooks define scripts to run at different stages of deployment
 hooks:
   BeforeInstall:
     - location: scripts/before_install.sh
       timeout: 300
-      runas: root
+      runas: ubuntu
+ 
   AfterInstall:
     - location: scripts/after_install.sh
       timeout: 300
-      runas: root
+      runas: ubuntu
+ 
+  ApplicationStart:
+    - location: scripts/start_server.sh
+      timeout: 300
+      runas: ubuntu
+ 
+  ValidateService:
+    - location: scripts/validate.sh
+      timeout: 300
+      runas: ubuntu
