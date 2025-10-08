@@ -1,5 +1,3 @@
 #!/bin/bash
-sudo apt update -y
-sudo apt install -y apache2
-sudo systemctl enable apache2
-sudo systemctl start apache2
+echo "Stopping existing app if running"
+pkill -f secretsanta-0.0.1-SNAPSHOT.jar || true
