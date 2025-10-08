@@ -4,7 +4,7 @@ os: linux
 # Copy all necessary files from the repo to the EC2 instance
 files:
   - source: /
-    destination: /home/ubuntu/app
+    destination: /home/ubuntu/secretesanta-generator
  
 # Hooks define scripts to run at different stages of deployment
 hooks:
