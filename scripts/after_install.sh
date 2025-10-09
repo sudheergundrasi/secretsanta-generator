@@ -1,3 +1,2 @@
 #!/bin/bash
-echo "Copying new files"
-# Already copied by CodeDeploy
+chmod +x /home/ubuntu/app/secretsanta-0.0.1-SNAPSHOT.jar
