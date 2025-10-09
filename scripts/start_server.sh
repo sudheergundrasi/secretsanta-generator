@@ -1,3 +1,2 @@
 #!/bin/bash
-echo "Starting Java app"
-nohup java -jar /home/ubuntu/app/myapp.jar > /home/ubuntu/app/app.log 2>&1 &
+nohup java -jar /home/ubuntu/app/secretsanta-0.0.1-SNAPSHOT.jar > /home/ubuntu/app/app.log 2>&1 &
