@@ -12,7 +12,7 @@ phases:
     commands:
       - echo "Building the Java app..."
       - mvn package
-      - mkdir output
+      - mkdir -p output
       - cp target/*.jar output/
  
 artifacts:
