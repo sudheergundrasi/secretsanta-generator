@@ -1,28 +1,26 @@
 version: 0.0
 os: linux
- 
-# Copy all necessary files from the repo to the EC2 instance
+
 files:
-  - source: /
-    destination: /home/ubuntu/secretesanta-generator
- 
-# Hooks define scripts to run at different stages of deployment
+  - source: target/secretsanta-0.0.1-SNAPSHOT.jar
+    destination: /home/ubuntu/app
+
 hooks:
   BeforeInstall:
     - location: scripts/before_install.sh
       timeout: 300
       runas: ubuntu
- 
+
   AfterInstall:
     - location: scripts/after_install.sh
       timeout: 300
       runas: ubuntu
- 
+
   ApplicationStart:
     - location: scripts/start_server.sh
       timeout: 300
       runas: ubuntu
- 
+
   ValidateService:
     - location: scripts/validate.sh
       timeout: 300
