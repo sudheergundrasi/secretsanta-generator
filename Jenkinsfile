@@ -83,3 +83,101 @@ pipeline {
         }
     }
 }
+--------------------------------------------------------------------------------------------
+    pipeline {
+    agent any
+
+    environment {
+        SONARQUBE_URL = 'http://34.229.163.9:9000'
+        SONAR_TOKEN   = credentials('sonar-cred')
+    }
+
+    stages {
+        stage('Clone the Code') {
+            steps {
+                git 'https://github.com/sudheergundrasi/secretsanta-generator.git'
+            }
+        }
+
+        stage('Build the Code') {
+            steps {
+                sh 'mvn clean package -DskipTests'
+            }
+        }
+
+        stage('SonarQube Analysis') {
+            steps {
+                sh """
+                    mvn verify sonar:sonar \
+                        -Dsonar.projectKey=poc \
+                        -Dsonar.host.url=${SONARQUBE_URL} \
+                        -Dsonar.login=${SONAR_TOKEN}
+                """
+            }
+        }
+
+        stage('Build Docker Image') {
+            steps {
+                sh 'docker build -t secretsanta .'
+            }
+        }
+
+        stage('Trivy Scan Docker Image') {
+            steps {
+                sh """
+                    docker run --rm \
+                        -v /var/run/docker.sock:/var/run/docker.sock \
+                        aquasec/trivy:latest image \
+                        --exit-code 0 \
+                        --severity HIGH,CRITICAL \
+                        secretsanta
+                """
+            }
+        }
+
+        stage('Push the Image to DockerHub') {
+            steps {
+                script {
+                    withCredentials([usernamePassword(
+                        credentialsId: 'docker-cred',
+                        usernameVariable: 'DOCKER_USER',
+                        passwordVariable: 'DOCKER_PASS'
+                    )]) {
+                        sh """
+                            echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
+                            docker tag secretsanta gundrasisudheer/secretsanta:latest
+                            docker push gundrasisudheer/secretsanta:latest
+                        """
+                    }
+                }
+            }
+        }
+
+        stage('Deploy to Kubernetes') {
+            steps {
+                sh '''
+                    export KUBECONFIG=/var/lib/jenkins/.kube/config
+                    kubectl get nodes   # quick test
+                    kubectl apply -f deploymentsvc.yaml
+                '''
+            }
+        }
+    }
+
+    post {
+        success {
+            emailext(
+                subject: "✅ SUCCESS: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
+                body: "Build succeeded! \nCheck console: ${env.BUILD_URL}",
+                to: "gundrasisudheer@gmail.com"
+            )
+        }
+        failure {
+            emailext(
+                subject: "❌ FAILURE: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
+                body: "Build failed! \nCheck console: ${env.BUILD_URL}",
+                to: "gundrasisudheer@gmail.com"
+            )
+        }
+    }
+}
